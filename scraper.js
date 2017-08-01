@@ -51,6 +51,21 @@ page.open(link, function() {
               console.log("Finished rendering!");
     }, 1000);
 
+//Here get the filter, give a prompt
+    setTimeout(function(){
+              type = "Track List"
+              query = 'select[class][class="NEdit"]';
+              btn = getButton(type, query);
+              //Now have the select element
+              //TODO NOT WORKING :C
+              console.log(btn.length);
+              var childNodes = btn[0].childNodes;
+              console.log(childNodes.length);
+              for (var i = 0; i < childNodes.length; i++){
+                console.log(i + ": " + childNodes[i].text);
+              }
+    }, 1500)
+
     setTimeout(function() {
               type = "Even Race";
               query = 'div[class][class="NListViewLinkEven"]';
@@ -96,8 +111,16 @@ function getButton(type, query){
       console.log("Searching for " + type + " button...");
       var btn = document.querySelectorAll(query);
       console.log("Clicking " + type + " button...");
-      btn[0].click();
+      if(type != "Track List"){
+        btn[0].click();
+      }
       return btn;
     }, type, query);
   return btn;
-}
+};
+
+//function getTracks(){
+  //var btn = evaluate(page, function(){
+    //console.log("Searching for track list...");
+  //});
+//}
