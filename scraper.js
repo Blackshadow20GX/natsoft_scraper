@@ -57,7 +57,7 @@ page.open(link, function() {
             }, 3000);
 
 });
-
+//Allows for proper evaluation of arguments because Javascript sucks
 function evaluate(page, func) {
   var args = [].slice.call(arguments, 2);
   var fn = "function() { return (" + func.toString() + ").apply(this, " +     JSON.stringify(args) + ");}";
