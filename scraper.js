@@ -1,4 +1,5 @@
 var page = require('webpage').create();
+var system = require('system');
 page.viewportSize = { width: 1280, height: 800 };
 link = "http://racing.natsoft.com.au/results";
 //link = "testdata.html";
@@ -9,15 +10,41 @@ page.onConsoleMessage = function (msg) {
 page.open(link, function() {
     console.log("Started evaluation.");
     page.render("aftOpen.png");
-
+    console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
+    var response = system.stdin.readLine();
     var btn;
     var type;
-    //TODO Query changes based on
     var query;
+    var filename;
+
+    if(response == "1"){
+      type = "\"Circuit Racing\"";
+      filename = "circuit";
+    }
+    else if (response == "2"){
+      type = "\"Speedway\"";
+      filename = "speedway";
+    }
+    else if (response == "3"){
+      type = "\"Bikes\"";
+      filename = "bikes";
+    }
+    else if (response == "4"){
+      type = "\"Kart\"";
+      filename = "kart";
+      //Debug code since not fully implemented
+      console.log("Kart not fully implemented. Exiting...");
+      phantom.exit();
+    }
+    else { //Input not recognized, exit.
+       console.log("Invalid input, exiting...");
+       phantom.exit();
+    }
+
+    console.log("Type set to " + type);
+    query = 'img[title][title=' + type + ']';
     //Need to give time for buttonclick to register since its asynchronous
     setTimeout(function() {
-              type = "\"Circuit Racing\"";
-              query = 'img[title][title=\"Circuit Racing\"]';
               btn = getButton(type, query);
               console.log("Rendering aftHeaderBtn.png...");
               page.render('aftHeaderBtn.png');
@@ -49,7 +76,7 @@ page.open(link, function() {
 
                   var fs = require('fs');
                   console.log("Writing result to file...");
-                  fs.write('1.html', page.content, 'w');
+                  fs.write(filename + '.html', page.content, 'w');
                   console.log("Write complete!");
                   console.log("Exiting...");
                   phantom.exit();
@@ -67,10 +94,10 @@ function evaluate(page, func) {
 function getButton(type, query){
   var btn = evaluate(page, function(type, query){
       console.log("Searching for " + type + " button...");
-      var j = document.querySelectorAll(query);
+      var btn = document.querySelectorAll(query);
       console.log("Clicking " + type + " button...");
-      j[0].click();
-      return j;
+      btn[0].click();
+      return btn;
     }, type, query);
   return btn;
 }
