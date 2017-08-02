@@ -2,7 +2,7 @@ var page = require('webpage').create();
 var system = require('system');
 page.viewportSize = { width: 1280, height: 800 };
 link = "http://racing.natsoft.com.au/results";
-//link = "testdata.html";
+//link = "test.html";
 page.onConsoleMessage = function (msg) {
   console.log(msg);
 };
@@ -14,15 +14,17 @@ page.open(link, function() {
     //Main program flow
     var filename = getRaceResponse();
     //Currently debugging this
-    //getFilter();
-    getRaceEvent();
-    getRaceResults(filename);
+    getFilter();
+    //getRaceEvent();
+    //getRaceResults(filename);
 
 });
 
 function getRaceResponse(){
   console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
   var response = system.stdin.readLine();
+  //Debug-REMOVE LATER
+  response = "1";
   switch(response) {
     case "1":
         type = "\"Circuit Racing\"";
@@ -70,17 +72,34 @@ function getRaceType(type){
 function getFilter(){
   setTimeout(function(){
             var type = "Track List"
-            var query = 'select[class][class="NEdit"]';
+            var query = 'select[title][title="Track "]';
             var btn = getButton(type, query);
+            btn = btn[0];
             //Now have the select element
             //TODO NOT WORKING :C
-            console.log(btn.length);
-            var childNodes = btn[0].childNodes;
-            console.log(childNodes.length);
-            for (var i = 0; i < childNodes.length; i++){
-              console.log(i + ": " + childNodes[i].text);
-            }
-  }, 1500)
+            //console.log("btn id: " + btn.id);
+            console.log("btn opt length: " + btn.options.length);
+          //  console.log(btn[0].id);
+            var options = [];
+            options = getOptions(btn);
+            //console.log(options);
+  }, 2000)
+};
+
+//test
+function getOptions(btn) {
+  var lst = [];
+  page.evaluate(function(btn, lst){
+       btn = document.getElementById(btn.id);
+       console.log(btn);
+       console.log(btn.options[1].text);
+       var i;
+       for (i = 0; i < btn.options.length; i++){
+         lst.push(btn.options[i].text);
+         console.log(btn.options[i].text);
+       };
+  }, btn, lst);
+  return lst;
 };
 
 function getRaceEvent(){
@@ -91,7 +110,7 @@ function getRaceEvent(){
             console.log("Rendering aftEvenBtn.png...");
             page.render('aftEvenBtn.png');
             console.log("Finished rendering!");
-  }, 2000);
+  }, 3000);
 };
 
 function getRaceResults(filename){
@@ -116,7 +135,7 @@ function getRaceResults(filename){
                 console.log("Exiting...");
                 phantom.exit();
             }
-          }, 3000);
+          }, 4000);
 };
 
 function getButton(type, query){
@@ -138,9 +157,3 @@ function evaluate(page, func) {
   var fn = "function() { return (" + func.toString() + ").apply(this, " +     JSON.stringify(args) + ");}";
   return page.evaluate(fn);
 };
-
-//function getTracks(){
-  //var btn = evaluate(page, function(){
-    //console.log("Searching for track list...");
-  //});
-//}
