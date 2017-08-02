@@ -23,30 +23,34 @@ page.open(link, function() {
 function getRaceResponse(){
   console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
   var response = system.stdin.readLine();
+  switch(response) {
+    case "1":
+        type = "\"Circuit Racing\"";
+        filename = "circuit";
+        break;
 
-  if(response == "1"){
-    type = "\"Circuit Racing\"";
-    filename = "circuit";
-  }
-  else if (response == "2"){
-    type = "\"Speedway\"";
-    filename = "speedway";
-  }
-  else if (response == "3"){
-    type = "\"Bikes\"";
-    filename = "bikes";
-  }
-  else if (response == "4"){
-    type = "\"Kart\"";
-    filename = "kart";
-    //Debug code since not fully implemented
-    console.log("Kart not fully implemented. Exiting...");
-    phantom.exit();
-  }
-  else { //Input not recognized, exit.
-     console.log("Invalid input, exiting...");
-     phantom.exit();
-  }
+    case "2":
+        type = "\"Speedway\"";
+        filename = "speedway";
+        break;
+
+    case "3":
+        type = "\"Bikes\"";
+        filename = "bikes";
+        break;
+
+    case "4":
+        type = "\"Kart\"";
+        filename = "kart";
+        //Debug code since not fully implemented
+        console.log("Kart not fully implemented. Exiting...");
+        phantom.exit();
+        break;
+
+    default: //Input not recognized, exit.
+        console.log("Invalid input, exiting...");
+        phantom.exit();
+    }
   getRaceType(type);
   return filename;
 }
