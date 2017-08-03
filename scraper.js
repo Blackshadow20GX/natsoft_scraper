@@ -13,16 +13,32 @@ page.open(link, function() {
 
     //Main program flow
     var filename = getRaceResponse();
+    var response = getFilterResponse(); //55
     //Currently debugging this
-    getFilter();
+    var btn = getFilter(response);
+    //updateFilter(btn, response);
+    console.log(btn);
+    filterTest();
+    //filterTest();
+    //updateFilter(btn, response);
     //getRaceEvent();
     //getRaceResults(filename);
 
 });
 
+function filterTest(){
+  setTimeout(function() {
+
+            console.log("Rendering aftFilterTest.png...");
+            page.render('aftFilterTest.png');
+            console.log("Finished rendering!");
+            phantom.exit();
+  }, 20000);
+}
+
 function getRaceResponse(){
   console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
-  var response = system.stdin.readLine();
+  //var response = system.stdin.readLine();
   //Debug-REMOVE LATER
   response = "1";
   switch(response) {
@@ -69,7 +85,8 @@ function getRaceType(type){
   }, 1000);
 };
 
-function getFilter(){
+function getFilter(response){
+  var btn = "btnfilttest";
   setTimeout(function(){
             var type = "Track List"
             var query = 'select[title][title="Track "]';
@@ -81,25 +98,68 @@ function getFilter(){
             console.log("btn opt length: " + btn.options.length);
           //  console.log(btn[0].id);
             var options = [];
-            options = getOptions(btn);
+            options = getOptions(btn, response);
+            console.log("getFilter btn length: " + btn.options.length)
+            var newBtn;
+            newBtn = updateFilter(btn, response);
+            console.log("after updateFilter: " + btn.options.length);
+            return btn;
             //console.log(options);
-  }, 2000)
+  }, 2000);
 };
 
+function getFilterResponse(){
+  var response = 60; //Debug
+  return response;
+};
+
+function updateFilter(btn, response){
+  var test = "string";
+  setTimeout(function(){
+    //setTimeout
+    console.log("Updating filter...");
+    var test = evaluate(page, function(btn, response){
+        var newBtn = document.getElementById(btn.id);
+        console.log("old id: " + btn.id);
+        console.log("new id: " + btn.id);
+        console.log("old index: " + btn.selectedIndex);
+        console.log("response: " + response);
+        newBtn.selectedIndex = parseInt(response);
+        console.log("new index:" + newBtn.selectedIndex);
+        var event = document.createEvent("HTMLEvents");
+        event.initEvent("change", false, true);
+        //sel.dispatchEvent(evt);
+        //var event = new Event('change', { 'bubbles': true });
+        //console.log("Event value: " + event);
+        //document.getElementById(btn.id).dispatchEvent(event);
+        newBtn.dispatchEvent(event);
+        //btn.dispatchEvent(event);
+        console.log("btn index after update: " + btn.selectedIndex);
+        var test = "test";
+        return test;
+       }, btn, response);
+    }, 3000);
+    return test;
+};
 //test
 function getOptions(btn) {
   var lst = [];
-  page.evaluate(function(btn, lst){
+  var newBtn
+  return newBtn = evaluate(page, function(btn, lst){
        btn = document.getElementById(btn.id);
        console.log(btn);
        console.log(btn.options[1].text);
        var i;
-       for (i = 0; i < btn.options.length; i++){
-         lst.push(btn.options[i].text);
-         console.log(btn.options[i].text);
-       };
+       //for (i = 0; i < btn.options.length; i++){
+        // lst.push(btn.options[i].text);
+         //console.log(btn.options[i].text);
+       //};
+       console.log("btn selIndex: " + btn.selectedIndex);
+       var newBtn = btn;
+       console.log("newBtn: " + newBtn.selectedIndex);
+       //console.log("Filter (theoretically) updated");
+       return newBtn;
   }, btn, lst);
-  return lst;
 };
 
 function getRaceEvent(){
@@ -110,7 +170,7 @@ function getRaceEvent(){
             console.log("Rendering aftEvenBtn.png...");
             page.render('aftEvenBtn.png');
             console.log("Finished rendering!");
-  }, 3000);
+  }, 4000);
 };
 
 function getRaceResults(filename){
@@ -135,7 +195,7 @@ function getRaceResults(filename){
                 console.log("Exiting...");
                 phantom.exit();
             }
-          }, 4000);
+          }, 5000);
 };
 
 function getButton(type, query){
