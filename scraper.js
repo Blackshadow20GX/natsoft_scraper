@@ -13,16 +13,14 @@ page.open(link, function() {
 
     //Main program flow
     var filename = getRaceResponse();
-    var response = getFilterResponse(); //55
+    var firstResponse = getFilterResponse(); //55
     //Currently debugging this
-    var btn = getFilter(response);
+    var firstBtn = getFilter(firstResponse);
     //updateFilter(btn, response);
-    console.log(btn);
+    //console.log(firstBtn);
     filterTest();
-    //filterTest();
-    //updateFilter(btn, response);
-    //getRaceEvent();
-    //getRaceResults(filename);
+    getRaceEvent();
+    getRaceResults(filename);
 
 });
 
@@ -32,15 +30,15 @@ function filterTest(){
             console.log("Rendering aftFilterTest.png...");
             page.render('aftFilterTest.png');
             console.log("Finished rendering!");
-            phantom.exit();
-  }, 20000);
+            //phantom.exit();
+  }, 9000);
 }
 
 function getRaceResponse(){
   console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
-  //var response = system.stdin.readLine();
+  var response = system.stdin.readLine();
   //Debug-REMOVE LATER
-  response = "1";
+  //response = "1";
   switch(response) {
     case "1":
         type = "\"Circuit Racing\"";
@@ -86,30 +84,34 @@ function getRaceType(type){
 };
 
 function getFilter(response){
-  var btn = "btnfilttest";
+  //var testBtn = "btnfilttest";
   setTimeout(function(){
             var type = "Track List"
             var query = 'select[title][title="Track "]';
             var btn = getButton(type, query);
+
+            //Get first select element
             btn = btn[0];
-            //Now have the select element
-            //TODO NOT WORKING :C
-            //console.log("btn id: " + btn.id);
-            console.log("btn opt length: " + btn.options.length);
-          //  console.log(btn[0].id);
-            var options = [];
-            options = getOptions(btn, response);
-            console.log("getFilter btn length: " + btn.options.length)
-            var newBtn;
-            newBtn = updateFilter(btn, response);
-            console.log("after updateFilter: " + btn.options.length);
+
+            //Get options (not actually necessary atm)
+            //TODO use this as string filter?
+            var checkResp = -2;
+            checkResp = getOptions(btn, response);
+            while(checkResp < -1){};
+            if(checkResp == -1){
+              console.log("Error: Response = " + checkResp);
+              console.log("String not found in <select>. Exiting...");
+              phantom.exit();
+            }
+            var newBtn = updateFilter(btn, response);
             return btn;
             //console.log(options);
   }, 2000);
 };
 
 function getFilterResponse(){
-  var response = 60; //Debug
+  //var response = 5; //Debug
+  var response = "Northline Speedway";
   return response;
 };
 
@@ -119,47 +121,45 @@ function updateFilter(btn, response){
     //setTimeout
     console.log("Updating filter...");
     var test = evaluate(page, function(btn, response){
+        //document.getElementById([title])
         var newBtn = document.getElementById(btn.id);
-        console.log("old id: " + btn.id);
-        console.log("new id: " + btn.id);
-        console.log("old index: " + btn.selectedIndex);
-        console.log("response: " + response);
         newBtn.selectedIndex = parseInt(response);
-        console.log("new index:" + newBtn.selectedIndex);
+
         var event = document.createEvent("HTMLEvents");
         event.initEvent("change", false, true);
-        //sel.dispatchEvent(evt);
-        //var event = new Event('change', { 'bubbles': true });
-        //console.log("Event value: " + event);
-        //document.getElementById(btn.id).dispatchEvent(event);
         newBtn.dispatchEvent(event);
-        //btn.dispatchEvent(event);
-        console.log("btn index after update: " + btn.selectedIndex);
+
+        console.log("Updated filter!");
         var test = "test";
         return test;
        }, btn, response);
-    }, 3000);
+    }, 1000);
     return test;
 };
 //test
-function getOptions(btn) {
-  var lst = [];
-  var newBtn
-  return newBtn = evaluate(page, function(btn, lst){
+function getOptions(btn, val) {
+  //var response = response;
+  var newResp = -1;
+  return newResp = evaluate(page, function(btn, val){
        btn = document.getElementById(btn.id);
-       console.log(btn);
-       console.log(btn.options[1].text);
+       //console.log(btn);
+       //console.log(btn.options[1].text);
        var i;
-       //for (i = 0; i < btn.options.length; i++){
-        // lst.push(btn.options[i].text);
+       var newResp = -1;
+       //print all options (debug)
+       for (i = 0; i < btn.options.length; i++){
+         //console.log("Option: " + btn.options[i].text);
+         if(btn.options[i].text == val){
+           console.log("String found at " + i + ": " + btn.options[i].text);
+           newResp = i;
+         }
+         //lst.push(btn.options[i].text);
          //console.log(btn.options[i].text);
-       //};
-       console.log("btn selIndex: " + btn.selectedIndex);
-       var newBtn = btn;
-       console.log("newBtn: " + newBtn.selectedIndex);
+       };
+
        //console.log("Filter (theoretically) updated");
-       return newBtn;
-  }, btn, lst);
+       return newResp;
+  }, btn, val);
 };
 
 function getRaceEvent(){
@@ -170,7 +170,7 @@ function getRaceEvent(){
             console.log("Rendering aftEvenBtn.png...");
             page.render('aftEvenBtn.png');
             console.log("Finished rendering!");
-  }, 4000);
+  }, 16000);
 };
 
 function getRaceResults(filename){
@@ -195,7 +195,7 @@ function getRaceResults(filename){
                 console.log("Exiting...");
                 phantom.exit();
             }
-          }, 5000);
+          }, 17000);
 };
 
 function getButton(type, query){
