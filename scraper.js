@@ -1,5 +1,15 @@
   var page = require('webpage').create();
   var system = require('system');
+  var args = system.args;
+
+  if (args.length === 1) {
+    console.log('Try to pass some arguments when invoking this script!');
+  } else {
+    args.forEach(function(arg, i) {
+      console.log(i + ': ' + arg);
+    });
+  }
+
   page.viewportSize = { width: 1280, height: 800 };
   link = "http://racing.natsoft.com.au/results";
   //link = "test.html";
@@ -11,11 +21,15 @@
       console.log("Started evaluation.");
       page.render("aftOpen.png");
 
+      var raceArg = args[1];
+      var trackArg = args[2];
+      var yearArg = args[3];
+      var boolYear = true;
+
       //Main program flow
-      var filename = getRaceResponse();
-      var firstResponse = getFilterResponse();
-      var firstBtn = getFilter(firstResponse);
-      filterYear();
+      var filename = getRaceResponse(raceArg);
+      getFilter(trackArg);
+      filterYear(yearArg, boolYear);
       filterTest();
       getRaceEvent();
       getRaceResults(filename);
@@ -31,36 +45,37 @@ function filterTest(){
   }, 9000);
 }
 
-function getRaceResponse(type){
-  console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
-  var response;
-  response = system.stdin.readLine();
+function getRaceResponse(raceArg){
+  //console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
+  var response = raceArg;
+  //response = system.stdin.readLine();
   var type;
   var filename;
   //Debug-REMOVE LATER
   //response = "1";
   switch(response) {
-    case "1":
+    case "circuit":
         type = "\"Circuit Racing\"";
         filename = "circuit";
         break;
 
-    case "2":
+    case "speedway":
         type = "\"Speedway\"";
         filename = "speedway";
         break;
 
-    case "3":
+    case "bikes":
         type = "\"Bikes\"";
         filename = "bikes";
         break;
 
-    case "4":
+    case "kart":
         type = "\"Kart\"";
         filename = "kart";
         //Debug code since not fully implemented
-        //console.log("Kart not fully implemented. Exiting...");
-        //phantom.exit();
+        //TODO Save kart object as pdf somehow
+        console.log("Kart not fully implemented. Exiting...");
+        phantom.exit();
         break;
 
     default: //Input not recognized, exit.
@@ -96,7 +111,7 @@ function getFilter(response){
             //Get options (not actually necessary atm)
             //TODO use this as string filter?
             var checkResp = -2;
-            checkResp = getOptions(btn, response);
+            checkResp = getOptions(btn, response, false);
             while(checkResp < -1){};
             if(checkResp == -1){
               console.log("Error: Response = " + checkResp);
@@ -106,13 +121,12 @@ function getFilter(response){
             //replace newBtn with 'complete' var, which starts as false, becomes true
             var newBtn = updateFilter(btn, response);
             while (newBtn == null){};
-            return btn;
             //console.log(options);
   }, 2000);
 };
 
-function getFilterResponse(){
-  var response = 6; //Debug
+function getFilterResponse(trackArg){
+  var response = trackArg; //Debug
   //var response = "Northline Speedway";
   return response;
 };
@@ -139,12 +153,16 @@ function updateFilter(btn, response){
     return test;
 };
 //test
-function getOptions(optBtn, val) {
+function getOptions(optBtn, val, yearVal) {
   //var response = response;
   var newResp = -1;
-  if(!isNaN(val)){
+  if(yearVal){
+    val = val.substring(1);
+    console.log("val value: " + val);
+  }
+  if(!isNaN(val) && !yearVal){
     //Direct index given
-    console.log("Integer detected.")
+    console.log("Integer detected.");
     if(val < optBtn.options.length){
       //It's a valid index
       console.log("Valid index at " + val);
@@ -175,8 +193,8 @@ function getOptions(optBtn, val) {
 };
 };
 
-function filterYear(){
-  var yearIndex = 2; //debug
+function filterYear(yearIndex, boolYear){
+  //var yearIndex = 2; //debug
 
   setTimeout(function() {
     var type = "Year";
@@ -186,7 +204,7 @@ function filterYear(){
 
     console.log("Beginning Year update sequence...");
     var checkResp = -2;
-    checkResp = getOptions(yearBtn, yearIndex);
+    checkResp = getOptions(yearBtn, yearIndex, boolYear);
     while(checkResp < -1){};
     if(checkResp == -1){
       console.log("Error: Response = " + checkResp);
