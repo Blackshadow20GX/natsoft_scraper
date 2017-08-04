@@ -18,6 +18,7 @@ page.open(link, function() {
     var firstBtn = getFilter(firstResponse);
     //updateFilter(btn, response);
     //console.log(firstBtn);
+    filterYear();
     filterTest();
     getRaceEvent();
     getRaceResults(filename);
@@ -96,14 +97,16 @@ function getFilter(response){
             //Get options (not actually necessary atm)
             //TODO use this as string filter?
             var checkResp = -2;
-            checkResp = getOptions(btn, response, type);
+            checkResp = getOptions(btn, response);
             while(checkResp < -1){};
             if(checkResp == -1){
               console.log("Error: Response = " + checkResp);
               console.log("String not found in <select>. Exiting...");
               phantom.exit();
             }
+            //replace newBtn with 'complete' var, which starts as false, becomes true
             var newBtn = updateFilter(btn, response);
+            while (newBtn == null){};
             return btn;
             //console.log(options);
   }, 2000);
@@ -137,41 +140,65 @@ function updateFilter(btn, response){
     return test;
 };
 //test
-function getOptions(btn, val) {
+function getOptions(optBtn, val) {
   //var response = response;
   var newResp = -1;
   if(!isNaN(val)){
     //Direct index given
     console.log("Integer detected.")
-    if(val < btn.options.length){
+    if(val < optBtn.options.length){
       //It's a valid index
       console.log("Valid index at " + val);
       return val;
     }
     else{ //invalid index
-      console.log("Invalid index: " + btn.options.length + " <= " + val);
+      console.log("Invalid index: " + optBtn.options.length + " <= " + val);
       return newResp;
     }
   }
   else{ //It's a string
   //Need to check for existence of string val instead
-    return newResp = evaluate(page, function(btn, val){
-       btn = document.getElementById(btn.id);
+    return newResp = evaluate(page, function(optBtn, val){
+       optBtn = document.getElementById(optBtn.id);
        var i;
        var newResp = -1;
        //print all options (debug)
-       for (i = 0; i < btn.options.length; i++){
+       for (i = 0; i < optBtn.options.length; i++){
          //console.log("Option: " + btn.options[i].text);
-         if(btn.options[i].text == val){
-           console.log("String found at " + i + ": " + btn.options[i].text);
+         if(optBtn.options[i].text == val){
+           console.log("String found at " + i + ": " + optBtn.options[i].text);
            newResp = i;
           }
         };
        //console.log("Filter (theoretically) updated");
        return newResp;
-  }, btn, val);
+  }, optBtn, val);
 };
 };
+
+function filterYear(){
+  var yearIndex = 2; //debug
+
+  setTimeout(function() {
+    var type = "Year";
+    var query = 'select[title][title="Year "]';
+    var yearBtn = getButton(type, query);
+    yearBtn = yearBtn[0];
+
+    console.log("Beginning Year update sequence...");
+    var checkResp = -2;
+    checkResp = getOptions(yearBtn, yearIndex);
+    while(checkResp < -1){};
+    if(checkResp == -1){
+      console.log("Error: Response = " + checkResp);
+      console.log("String not found in <select>. Exiting...");
+      phantom.exit();
+    }
+    var newBtn = updateFilter(yearBtn, yearIndex);
+    while (newBtn == null){};
+    console.log("Year updated!");
+  }, 2000);
+}
 
 function getRaceEvent(){
   setTimeout(function() {
@@ -214,7 +241,7 @@ function getButton(type, query){
       console.log("Searching for " + type + " button...");
       var btn = document.querySelectorAll(query);
       console.log("Clicking " + type + " button...");
-      if(type != "Track List"){
+      if(type != "Track List" || type != "Year"){
         btn[0].click();
       }
       return btn;
