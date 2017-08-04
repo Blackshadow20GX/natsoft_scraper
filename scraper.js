@@ -3,7 +3,7 @@
   var args = system.args;
 
   if (args.length === 1) {
-    console.log('Try to pass some arguments when invoking this script!');
+    console.log('No arguments detected.');
   } else {
     args.forEach(function(arg, i) {
       console.log(i + ': ' + arg);
@@ -48,11 +48,9 @@ function filterTest(){
 function getRaceResponse(raceArg){
   //console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
   var response = raceArg;
-  //response = system.stdin.readLine();
   var type;
   var filename;
-  //Debug-REMOVE LATER
-  //response = "1";
+
   switch(response) {
     case "circuit":
         type = "\"Circuit Racing\"";
@@ -99,7 +97,7 @@ function getRaceType(type){
 };
 
 function getFilter(response){
-  //var testBtn = "btnfilttest";
+
   setTimeout(function(){
             var type = "Track List"
             var query = 'select[title][title="Track "]';
@@ -108,8 +106,6 @@ function getFilter(response){
             //Get first select element
             btn = btn[0];
 
-            //Get options (not actually necessary atm)
-            //TODO use this as string filter?
             var checkResp = -2;
             checkResp = getOptions(btn, response, false);
             while(checkResp < -1){};
@@ -118,26 +114,18 @@ function getFilter(response){
               console.log("String not found in <select>. Exiting...");
               phantom.exit();
             }
-            //replace newBtn with 'complete' var, which starts as false, becomes true
+            //TODO replace newBtn with 'complete' var, which starts as false, becomes true
             var newBtn = updateFilter(btn, response);
             while (newBtn == null){};
-            //console.log(options);
   }, 2000);
-};
-
-function getFilterResponse(trackArg){
-  var response = trackArg; //Debug
-  //var response = "Northline Speedway";
-  return response;
 };
 
 function updateFilter(btn, response){
   var test = "string";
   setTimeout(function(){
-    //setTimeout
+
     console.log("Updating filter...");
     var test = evaluate(page, function(btn, response){
-        //document.getElementById([title])
         var newBtn = document.getElementById(btn.id);
         newBtn.selectedIndex = parseInt(response);
 
@@ -152,9 +140,9 @@ function updateFilter(btn, response){
     }, 1000);
     return test;
 };
-//test
+
 function getOptions(optBtn, val, yearVal) {
-  //var response = response;
+
   var newResp = -1;
   if(yearVal){
     val = val.substring(1);
@@ -179,7 +167,7 @@ function getOptions(optBtn, val, yearVal) {
        optBtn = document.getElementById(optBtn.id);
        var i;
        var newResp = -1;
-       //print all options (debug)
+       //Search options for value specified (string or index)
        for (i = 0; i < optBtn.options.length; i++){
          //console.log("Option: " + btn.options[i].text);
          if(optBtn.options[i].text == val){
@@ -187,14 +175,12 @@ function getOptions(optBtn, val, yearVal) {
            newResp = i;
           }
         };
-       //console.log("Filter (theoretically) updated");
        return newResp;
-  }, optBtn, val);
-};
+     }, optBtn, val);
+   };
 };
 
 function filterYear(yearIndex, boolYear){
-  //var yearIndex = 2; //debug
 
   setTimeout(function() {
     var type = "Year";
