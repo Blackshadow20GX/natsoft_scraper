@@ -96,7 +96,7 @@ function getFilter(response){
             //Get options (not actually necessary atm)
             //TODO use this as string filter?
             var checkResp = -2;
-            checkResp = getOptions(btn, response);
+            checkResp = getOptions(btn, response, type);
             while(checkResp < -1){};
             if(checkResp == -1){
               console.log("Error: Response = " + checkResp);
@@ -110,8 +110,8 @@ function getFilter(response){
 };
 
 function getFilterResponse(){
-  //var response = 5; //Debug
-  var response = "Northline Speedway";
+  var response = 6; //Debug
+  //var response = "Northline Speedway";
   return response;
 };
 
@@ -140,10 +140,23 @@ function updateFilter(btn, response){
 function getOptions(btn, val) {
   //var response = response;
   var newResp = -1;
-  return newResp = evaluate(page, function(btn, val){
+  if(!isNaN(val)){
+    //Direct index given
+    console.log("Integer detected.")
+    if(val < btn.options.length){
+      //It's a valid index
+      console.log("Valid index at " + val);
+      return val;
+    }
+    else{ //invalid index
+      console.log("Invalid index: " + btn.options.length + " <= " + val);
+      return newResp;
+    }
+  }
+  else{ //It's a string
+  //Need to check for existence of string val instead
+    return newResp = evaluate(page, function(btn, val){
        btn = document.getElementById(btn.id);
-       //console.log(btn);
-       //console.log(btn.options[1].text);
        var i;
        var newResp = -1;
        //print all options (debug)
@@ -152,14 +165,12 @@ function getOptions(btn, val) {
          if(btn.options[i].text == val){
            console.log("String found at " + i + ": " + btn.options[i].text);
            newResp = i;
-         }
-         //lst.push(btn.options[i].text);
-         //console.log(btn.options[i].text);
-       };
-
+          }
+        };
        //console.log("Filter (theoretically) updated");
        return newResp;
   }, btn, val);
+};
 };
 
 function getRaceEvent(){
