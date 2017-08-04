@@ -1,28 +1,24 @@
-var page = require('webpage').create();
-var system = require('system');
-page.viewportSize = { width: 1280, height: 800 };
-link = "http://racing.natsoft.com.au/results";
-//link = "test.html";
-page.onConsoleMessage = function (msg) {
-  console.log(msg);
-};
+  var page = require('webpage').create();
+  var system = require('system');
+  page.viewportSize = { width: 1280, height: 800 };
+  link = "http://racing.natsoft.com.au/results";
+  //link = "test.html";
+  page.onConsoleMessage = function (msg) {
+    console.log(msg);
+  };
 
-page.open(link, function() {
-    console.log("Started evaluation.");
-    page.render("aftOpen.png");
+  page.open(link, function() {
+      console.log("Started evaluation.");
+      page.render("aftOpen.png");
 
-    //Main program flow
-    var filename = getRaceResponse();
-    var firstResponse = getFilterResponse(); //55
-    //Currently debugging this
-    var firstBtn = getFilter(firstResponse);
-    //updateFilter(btn, response);
-    //console.log(firstBtn);
-    filterYear();
-    filterTest();
-    getRaceEvent();
-    getRaceResults(filename);
-
+      //Main program flow
+      var filename = getRaceResponse();
+      var firstResponse = getFilterResponse();
+      var firstBtn = getFilter(firstResponse);
+      filterYear();
+      filterTest();
+      getRaceEvent();
+      getRaceResults(filename);
 });
 
 function filterTest(){
@@ -35,9 +31,12 @@ function filterTest(){
   }, 9000);
 }
 
-function getRaceResponse(){
+function getRaceResponse(type){
   console.log("1: Circuit Racing 2: Speedway 3: Bikes 4: Kart");
-  var response = system.stdin.readLine();
+  var response;
+  response = system.stdin.readLine();
+  var type;
+  var filename;
   //Debug-REMOVE LATER
   //response = "1";
   switch(response) {
@@ -60,8 +59,8 @@ function getRaceResponse(){
         type = "\"Kart\"";
         filename = "kart";
         //Debug code since not fully implemented
-        console.log("Kart not fully implemented. Exiting...");
-        phantom.exit();
+        //console.log("Kart not fully implemented. Exiting...");
+        //phantom.exit();
         break;
 
     default: //Input not recognized, exit.
@@ -228,7 +227,12 @@ function getRaceResults(filename){
 
                 var fs = require('fs');
                 console.log("Writing result to file...");
-                fs.write(filename + '.html', page.content, 'w');
+                if(filename == "kart"){//different format
+                  fs.write(filename + '.pdf', page.content, 'w');
+                }
+                else{
+                  fs.write(filename + '.html', page.content, 'w');
+                }
                 console.log("Write complete!");
                 console.log("Exiting...");
                 phantom.exit();
