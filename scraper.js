@@ -24,6 +24,7 @@
       var raceArg = args[1];
       var trackArg = args[2];
       var yearArg = args[3];
+      var mode = args[4];
       var boolYear = true;
       var updatingTrack = true;
 
@@ -35,8 +36,9 @@
       filterTest();
       filterYear(yearArg, boolYear);
       //filterTest();
-      getRaceEvent();
-      getRaceResults(filename);
+
+      getRaceEvent(mode);
+      //getSingleRaceResults(filename);
 });
 
 function filterTest(){
@@ -214,18 +216,48 @@ function filterYear(yearIndex, boolYear){
   }, 7000);
 }
 
-function getRaceEvent(){
+function getRaceEvent(mode){
   setTimeout(function() {
+    if (mode == "single"){
             var type = "Even Race";
             var query = 'div[class][class="NListViewLinkEven"]';
             var btn = getButton(type, query);
             console.log("Rendering aftEvenBtn.png...");
             page.render('aftEvenBtn.png');
             console.log("Finished rendering!");
+          }
+          else if (mode == "all"){
+            //get all Evens
+            var type = "All";
+            var query = 'div[class][class="NListViewLinkEven"]';
+            var evenBtns = getButton(type, query);
+            query = 'div[class][class="NListViewLinkOdd"]';
+            var oddBtns = getButton(type, query);
+            processAllEvents(evenBtns);
+            processAllEvents(oddBtns);
+          }
   }, 16000);
 };
 
-function getRaceResults(filename){
+function processAllEvents(btns){
+  //Click each even/odd
+  for (var i = 0; i < btns.length; i++){
+    try {
+      if ((i % 0) == 0) //It's a button we care about
+      {
+        console.log(btns[i].id);
+        //btns[i].click();
+      }
+    }
+    catch (err){
+      console.log(err);
+      //continue;
+    }
+  }
+  die();
+}
+
+function getSingleRaceResults(filename){
   setTimeout(function() {
             var type = "Results";
             var query = 'a[class][class="NListViewLinkOdd"]';
@@ -260,7 +292,7 @@ function getButton(type, query){
       console.log("Searching for " + type + " button...");
       var btn = document.querySelectorAll(query);
       console.log("Clicking " + type + " button...");
-      if(type != "Track List" || type != "Year"){
+      if(type != "Track List" || type != "Year" || type != "All"){
         try{
           btn[0].click();
           }
