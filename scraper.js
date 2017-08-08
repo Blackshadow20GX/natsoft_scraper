@@ -25,12 +25,16 @@
       var trackArg = args[2];
       var yearArg = args[3];
       var boolYear = true;
+      var updatingTrack = true;
 
       //Main program flow
       var filename = getRaceResponse(raceArg);
-      getFilter(trackArg);
-      filterYear(yearArg, boolYear);
+
+      updatingTrack = getFilter(trackArg);
+      while(updatingTrack){};
       filterTest();
+      filterYear(yearArg, boolYear);
+      //filterTest();
       getRaceEvent();
       getRaceResults(filename);
 });
@@ -42,7 +46,7 @@ function filterTest(){
             page.render('aftFilterTest.png');
             console.log("Finished rendering!");
             //phantom.exit();
-  }, 9000);
+  }, 3000);
 }
 
 function getRaceResponse(raceArg){
@@ -117,16 +121,16 @@ function getFilter(response){
             //TODO replace newBtn with 'complete' var, which starts as false, becomes true
             var newBtn = updateFilter(btn, response);
             while (newBtn == null){};
+            return false; //finished updating track
   }, 2000);
 };
 
-function updateFilter(btn, response){
+function updateFilter(updBtn, response){
   var test = "string";
   setTimeout(function(){
-
     console.log("Updating filter...");
-    var test = evaluate(page, function(btn, response){
-        var newBtn = document.getElementById(btn.id);
+    var test = evaluate(page, function(updBtn, response){
+        var newBtn = document.getElementById(updBtn.id);
         newBtn.selectedIndex = parseInt(response);
 
         var event = document.createEvent("HTMLEvents");
@@ -136,48 +140,52 @@ function updateFilter(btn, response){
         console.log("Updated filter!");
         var test = "test";
         return test;
-       }, btn, response);
+      }, updBtn, response);
     }, 1000);
     return test;
 };
 
 function getOptions(optBtn, val, yearVal) {
-
   var newResp = -1;
-  if(yearVal){
-    val = val.substring(1);
-    console.log("val value: " + val);
-  }
-  if(!isNaN(val) && !yearVal){
-    //Direct index given
-    console.log("Integer detected.");
-    if(val < optBtn.options.length){
-      //It's a valid index
-      console.log("Valid index at " + val);
-      return val;
+  console.log("Substring: " + val.charAt(0));
+  if (yearVal){
+    if (val.charAt(0) == 'y'){
+      console.log("Concat substring " + val);
+      val = val.substring(1);
+      console.log("New val: " + val);
     }
-    else{ //invalid index
-      console.log("Invalid index: " + optBtn.options.length + " <= " + val);
+    else{
+      val = val.toString();
+    }
+  }
+  else{
+    if (val < optBtn.options.length){
+      newResp = val;
+      return newResp;
+    }
+    else{
       return newResp;
     }
   }
-  else{ //It's a string
+  var resp;
+   //It's a string
   //Need to check for existence of string val instead
-    return newResp = evaluate(page, function(optBtn, val){
+  return resp = evaluate(page, function(optBtn, val){
+
        optBtn = document.getElementById(optBtn.id);
        var i;
        var newResp = -1;
        //Search options for value specified (string or index)
        for (i = 0; i < optBtn.options.length; i++){
-         //console.log("Option: " + btn.options[i].text);
+         console.log("Option: " + optBtn.options[i].text);
          if(optBtn.options[i].text == val){
            console.log("String found at " + i + ": " + optBtn.options[i].text);
            newResp = i;
+           i = optBtn.options.length;
           }
         };
        return newResp;
      }, optBtn, val);
-   };
 };
 
 function filterYear(yearIndex, boolYear){
@@ -187,20 +195,23 @@ function filterYear(yearIndex, boolYear){
     var query = 'select[title][title="Year "]';
     var yearBtn = getButton(type, query);
     yearBtn = yearBtn[0];
+    //Fire change event to year to update index (hopefully)
+    //var test = updateFilter(yearBtn, 0);
 
     console.log("Beginning Year update sequence...");
     var checkResp = -2;
     checkResp = getOptions(yearBtn, yearIndex, boolYear);
     while(checkResp < -1){};
+    console.log("Year response: " + checkResp);
     if(checkResp == -1){
       console.log("Error: Response = " + checkResp);
       console.log("String not found in <select>. Exiting...");
       phantom.exit();
     }
-    var newBtn = updateFilter(yearBtn, yearIndex);
+    var newBtn = updateFilter(yearBtn, checkResp);
     while (newBtn == null){};
     console.log("Year updated!");
-  }, 2000);
+  }, 7000);
 }
 
 function getRaceEvent(){
@@ -239,7 +250,7 @@ function getRaceResults(filename){
                 }
                 console.log("Write complete!");
                 console.log("Exiting...");
-                phantom.exit();
+                phantom.exit()
             }
           }, 17000);
 };
@@ -250,10 +261,20 @@ function getButton(type, query){
       var btn = document.querySelectorAll(query);
       console.log("Clicking " + type + " button...");
       if(type != "Track List" || type != "Year"){
-        btn[0].click();
+        try{
+          btn[0].click();
+          }
+        catch(err){
+          console.log(err);
+          console.log("Clicking btn[0] for type " + type + " failed. Exiting...");
+          btn = "die";
+        }
       }
       return btn;
     }, type, query);
+  if(btn == "die"){
+    die();
+  }
   return btn;
 };
 
@@ -263,3 +284,7 @@ function evaluate(page, func) {
   var fn = "function() { return (" + func.toString() + ").apply(this, " +     JSON.stringify(args) + ");}";
   return page.evaluate(fn);
 };
+
+function die(){
+  phantom.exit();
+}
