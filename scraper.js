@@ -55,10 +55,7 @@
           //Get frame, open new window and save?
             var frame = getLiveFrame();
         }, timeOutCounter)
-        timeOutCounter += 1000;
-
-        console.log("liveBtns length: " + liveBtns.length)
-        die();
+        //We got our link, let's die
       }
       else{
         timeOutCounter += 7000;
@@ -67,7 +64,6 @@
         filterTest();
         timeOutCounter += 4000;
         filterYear(yearArg, boolYear);
-        //filterTest();
 
         getRaceEvent(mode);
         getSingleRaceResults(filename);
@@ -80,7 +76,6 @@ function filterTest(){
             console.log("Rendering aftFilterTest.png...");
             page.render('aftFilterTest.png');
             console.log("Finished rendering!");
-            //phantom.exit();
   }, timeOutCounter);
   timeOutCounter += 1000;
 }
@@ -113,12 +108,12 @@ function getRaceResponse(raceArg){
         //Debug code since not fully implemented
         //TODO Save kart object as pdf somehow
         console.log("Kart not fully implemented. Exiting...");
-        phantom.exit();
+        die();
         break;
 
     default: //Input not recognized, exit.
         console.log("Invalid input, exiting...");
-        phantom.exit();
+        die();
     }
   getRaceType(type);
   return filename;
@@ -186,12 +181,15 @@ function getOKBtn(type){
 function getLiveFrame(){
     //Eval document, get frame src, open new window
     var link = evaluate(page, function(){
-      var frames = document.querySelectorAll("iframe:not(name)");
+      var frames = document.querySelectorAll("iframe[name]:not(UploadIFrame)");
       for(var i = 0; i < frames.length; i++){
-        console.log("Frame count: " + i);
+        if(frames[i].id != ""){
+          console.log("Frame found at: " + i);
+          break;
+        }
       }
-      console.log("frames[0] id:" + frames[1].id)
-      var link = frames[1].src;
+      var link = frames[i].src;
+      console.log("Link found: " + link);
       return link
       });
 
@@ -213,7 +211,6 @@ function getLiveFrame(){
 };
 
 function getFilter(response){
-
   setTimeout(function(){
             var type = "Track List"
             var query = 'select[title][title="Track "]';
@@ -228,7 +225,7 @@ function getFilter(response){
             if(checkResp == -1){
               console.log("Error: Response = " + checkResp);
               console.log("String not found in <select>. Exiting...");
-              phantom.exit();
+              die();
             }
             //TODO replace newBtn with 'complete' var, which starts as false, becomes true
             var newBtn = updateFilter(btn, response);
@@ -308,8 +305,6 @@ function filterYear(yearIndex, boolYear){
     var query = 'select[title][title="Year "]';
     var yearBtn = getButton(type, query);
     yearBtn = yearBtn[0];
-    //Fire change event to year to update index (hopefully)
-    //var test = updateFilter(yearBtn, 0);
 
     console.log("Beginning Year update sequence...");
     var checkResp = -2;
@@ -319,7 +314,7 @@ function filterYear(yearIndex, boolYear){
     if(checkResp == -1){
       console.log("Error: Response = " + checkResp);
       console.log("String not found in <select>. Exiting...");
-      phantom.exit();
+      die();
     }
     var newBtn = updateFilter(yearBtn, checkResp);
     while (newBtn == null){};
@@ -395,7 +390,7 @@ function getSingleRaceResults(filename){
                 }
                 console.log("Write complete!");
                 console.log("Exiting...");
-                phantom.exit()
+                die();
             }
           }, timeOutCounter);
           timeOutCounter += 1000;
