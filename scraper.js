@@ -38,10 +38,10 @@
                   console.log("Rendering aftLiveBtn.png...");
                   page.render('aftLiveBtn.png');
                   console.log("Finished rendering!");
-        }, 2000);
+        }, 4000);
 
         console.log("liveBtns length: " + liveBtns.length)
-        //die();
+        die();
       }
       else{
         updatingTrack = getFilter(trackArg);
@@ -118,7 +118,6 @@ function getRaceType(type){
 
 function getLiveBtns(type){
   console.log("Type set to " + type);
-  var query = "div'Live']";
   var liveDivs;
   var test = evaluate(page, function(liveDivs){
     //Get all divs, search for innerHTML
@@ -131,14 +130,29 @@ function getLiveBtns(type){
         console.log("Clicking Live Button...");
         divs[i].click();
         console.log("Clicked it!");
+        i = divs.length;
+      }
+    }
+    console.log("Searching for 'OK' button...");
+    //Get OK button
+    var input = document.querySelectorAll("input");
+    for(var i = 0; i < input.length; i++){
+      if(input[i].value == "OK"){
+        //Click OK button, we at the live stuff now
+        console.log("OK button found at input " + i + "!");
+        console.log("Clicking OK Button...");
+        input[i].click();
+        console.log("Clicked it!");
+        i = input.length;
       }
       else{
-        //console.log("Not found at " + i + "...");
+        console.log("Not found at " + i + "...");
       }
     }
     //After this, all live divs found.
     return liveDivs;
   }, liveDivs);
+  return;
 };
 
 function getFilter(response){
