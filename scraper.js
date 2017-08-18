@@ -30,15 +30,29 @@
 
       //Main program flow
       var filename = getRaceResponse(raceArg);
+      if(mode == "live")
+      {
+        //Everything for live handling
+        setTimeout(function() {
+                  var liveBtns = getLiveBtns("Live");
+                  console.log("Rendering aftLiveBtn.png...");
+                  page.render('aftLiveBtn.png');
+                  console.log("Finished rendering!");
+        }, 2000);
 
-      updatingTrack = getFilter(trackArg);
-      while(updatingTrack){};
-      filterTest();
-      filterYear(yearArg, boolYear);
-      //filterTest();
+        console.log("liveBtns length: " + liveBtns.length)
+        //die();
+      }
+      else{
+        updatingTrack = getFilter(trackArg);
+        while(updatingTrack){};
+        filterTest();
+        filterYear(yearArg, boolYear);
+        //filterTest();
 
-      getRaceEvent(mode);
-      //getSingleRaceResults(filename);
+        getRaceEvent(mode);
+        //getSingleRaceResults(filename);
+      };
 });
 
 function filterTest(){
@@ -100,6 +114,31 @@ function getRaceType(type){
             page.render('aftHeaderBtn.png');
             console.log("Finished rendering!");
   }, 1000);
+};
+
+function getLiveBtns(type){
+  console.log("Type set to " + type);
+  var query = "div'Live']";
+  var liveDivs;
+  var test = evaluate(page, function(liveDivs){
+    //Get all divs, search for innerHTML
+    var divs = document.querySelectorAll("div:not(.NListViewTitle)");
+    for(var i = 0; i < divs.length; i++){
+      if(divs[i].innerText == "Live"){
+        //It's a live link
+        console.log("Live link found at div " + i + "!");
+        liveDivs += divs[i];
+        console.log("Clicking Live Button...");
+        divs[i].click();
+        console.log("Clicked it!");
+      }
+      else{
+        //console.log("Not found at " + i + "...");
+      }
+    }
+    //After this, all live divs found.
+    return liveDivs;
+  }, liveDivs);
 };
 
 function getFilter(response){
@@ -213,7 +252,7 @@ function filterYear(yearIndex, boolYear){
     var newBtn = updateFilter(yearBtn, checkResp);
     while (newBtn == null){};
     console.log("Year updated!");
-  }, 7000);
+  }, 8000);
 }
 
 function getRaceEvent(mode){
@@ -235,26 +274,26 @@ function getRaceEvent(mode){
             var oddBtns = getButton(type, query);
             processAllEvents(evenBtns);
             processAllEvents(oddBtns);
+            die();
           }
   }, 16000);
 };
 
 function processAllEvents(btns){
   //Click each even/odd
+  console.log("Btn length:" + btns.length)
   for (var i = 0; i < btns.length; i++){
     try {
       if ((i % 0) == 0) //It's a button we care about
       {
         console.log(btns[i].id);
-        //btns[i].click();
       }
     }
     catch (err){
       console.log(err);
-      //continue;
+      continue;
     }
   }
-  die();
 }
 
 function getSingleRaceResults(filename){
