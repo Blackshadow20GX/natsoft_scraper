@@ -1,8 +1,8 @@
   var page = require('webpage').create();
   var system = require('system');
   var args = system.args;
-
   if (args.length === 1) {
+
     console.log('No arguments detected.');
   } else {
     args.forEach(function(arg, i) {
@@ -30,6 +30,8 @@
 
       //Main program flow
       var filename = getRaceResponse(raceArg);
+
+      //If looking for live frames
       if(mode == "live")
       {
         //Everything for live handling
@@ -38,7 +40,19 @@
                   console.log("Rendering aftLiveBtn.png...");
                   page.render('aftLiveBtn.png');
                   console.log("Finished rendering!");
-        }, 4000);
+        }, 3000);
+
+        setTimeout(function() {
+          var okBtn = getOKBtn("OK");
+          console.log("Rendering aftOKBtn.png...");
+          page.render('aftOKBtn.png');
+          console.log("Finished rendering!");
+        }, 6000)
+
+        setTimeout(function() {
+          //Get frame, open new window and save?
+            var frame = getLiveFrame();
+        }, 9000)
 
         console.log("liveBtns length: " + liveBtns.length)
         die();
@@ -133,26 +147,62 @@ function getLiveBtns(type){
         i = divs.length;
       }
     }
-    console.log("Searching for 'OK' button...");
-    //Get OK button
-    var input = document.querySelectorAll("input");
-    for(var i = 0; i < input.length; i++){
-      if(input[i].value == "OK"){
-        //Click OK button, we at the live stuff now
-        console.log("OK button found at input " + i + "!");
-        console.log("Clicking OK Button...");
-        input[i].click();
-        console.log("Clicked it!");
-        i = input.length;
-      }
-      else{
-        console.log("Not found at " + i + "...");
+  return;
+});
+};
+
+function getOKBtn(type){
+  var liveDivs;
+  var test = evaluate(page, function(liveDivs){
+  console.log("Searching for 'OK' button...");
+  //Get OK button
+  var input = document.querySelectorAll("input");
+  for(var i = 0; i < input.length; i++){
+    if(input[i].value == "OK"){
+      //Click OK button, we at the live stuff now
+      console.log("OK button found at input " + i + "!");
+      console.log("Clicking OK Button...");
+      input[i].click();
+      console.log("Clicked it!");
+      i = input.length;
+    }
+    else{
+      console.log("Not found at " + i + "...");
       }
     }
     //After this, all live divs found.
     return liveDivs;
   }, liveDivs);
   return;
+};
+
+function getLiveFrame(){
+    //Eval document, get frame src, open new window
+    var link = evaluate(page, function(){
+      var frames = document.querySelectorAll("iframe:not(name)");
+      for(var i = 0; i < frames.length; i++){
+        console.log("Frame count: " + i);
+      }
+      console.log("frames[0] id:" + frames[1].id)
+      var link = frames[1].src;
+      return link
+      });
+
+    var WebPage = require('webpage');
+    page = WebPage.create();
+    page.open(link);
+    console.log("Opening " + link + "...");
+    page.onLoadFinished = function(){
+        console.log("Writing to iframelink.txt...");
+        var fs = require('fs');
+        try {
+          fs.write("iframelink.txt", "Link: " + link, 'w');
+          console.log("Write successful!");
+        } catch(e) {
+          console.log(e);
+        }
+        die();
+    };
 };
 
 function getFilter(response){
@@ -371,5 +421,7 @@ function evaluate(page, func) {
 };
 
 function die(){
+  console.log("Die() called.");
+  console.log("Exiting...");
   phantom.exit();
 }
