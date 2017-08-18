@@ -1,6 +1,7 @@
   var page = require('webpage').create();
   var system = require('system');
   var args = system.args;
+  var timeOutCounter = 2000;
   if (args.length === 1) {
 
     console.log('No arguments detected.');
@@ -40,32 +41,36 @@
                   console.log("Rendering aftLiveBtn.png...");
                   page.render('aftLiveBtn.png');
                   console.log("Finished rendering!");
-        }, 3000);
+        }, timeOutCounter);
+        timeOutCounter += 1000;
 
         setTimeout(function() {
           var okBtn = getOKBtn("OK");
           console.log("Rendering aftOKBtn.png...");
           page.render('aftOKBtn.png');
           console.log("Finished rendering!");
-        }, 6000)
-
+        }, timeOutCounter)
+        timeOutCounter += 1000
         setTimeout(function() {
           //Get frame, open new window and save?
             var frame = getLiveFrame();
-        }, 9000)
+        }, timeOutCounter)
+        timeOutCounter += 1000;
 
         console.log("liveBtns length: " + liveBtns.length)
         die();
       }
       else{
+        timeOutCounter += 7000;
         updatingTrack = getFilter(trackArg);
         while(updatingTrack){};
         filterTest();
+        timeOutCounter += 4000;
         filterYear(yearArg, boolYear);
         //filterTest();
 
         getRaceEvent(mode);
-        //getSingleRaceResults(filename);
+        getSingleRaceResults(filename);
       };
 });
 
@@ -76,7 +81,8 @@ function filterTest(){
             page.render('aftFilterTest.png');
             console.log("Finished rendering!");
             //phantom.exit();
-  }, 3000);
+  }, timeOutCounter);
+  timeOutCounter += 1000;
 }
 
 function getRaceResponse(raceArg){
@@ -127,7 +133,8 @@ function getRaceType(type){
             console.log("Rendering aftHeaderBtn.png...");
             page.render('aftHeaderBtn.png');
             console.log("Finished rendering!");
-  }, 1000);
+  }, timeOutCounter);
+  timeOutCounter += 1000;
 };
 
 function getLiveBtns(type){
@@ -227,7 +234,8 @@ function getFilter(response){
             var newBtn = updateFilter(btn, response);
             while (newBtn == null){};
             return false; //finished updating track
-  }, 2000);
+  }, timeOutCounter);
+  timeOutCounter += 1000;
 };
 
 function updateFilter(updBtn, response){
@@ -316,7 +324,8 @@ function filterYear(yearIndex, boolYear){
     var newBtn = updateFilter(yearBtn, checkResp);
     while (newBtn == null){};
     console.log("Year updated!");
-  }, 8000);
+  }, timeOutCounter);
+  timeOutCounter += 1000;
 }
 
 function getRaceEvent(mode){
@@ -340,7 +349,8 @@ function getRaceEvent(mode){
             processAllEvents(oddBtns);
             die();
           }
-  }, 16000);
+  }, timeOutCounter);
+  timeOutCounter += 1000;
 };
 
 function processAllEvents(btns){
@@ -387,7 +397,8 @@ function getSingleRaceResults(filename){
                 console.log("Exiting...");
                 phantom.exit()
             }
-          }, 17000);
+          }, timeOutCounter);
+          timeOutCounter += 1000;
 };
 
 function getButton(type, query){
